@@ -1,0 +1,49 @@
+﻿@inject IWirelessSocketService socketService
+@inject IMatToaster toaster
+
+<div class="container">
+    <MatCard Style=@cssClass>
+        <MatHeadline5 Class="p-2 text-center">@Socket.Name</MatHeadline5>
+        <MatChipSet Class="text-center">
+            @foreach (var label in @Socket.Labels)
+            {
+                <MatChip Label="@label"></MatChip>
+            }
+        </MatChipSet>
+        <MatCardContent Style="height: 70px;">
+            <MatButton Style="height: 100%; color: black;" OnClick="SetSocketState">@SocketStateText</MatButton>
+        </MatCardContent>
+
+    </MatCard>
+</div>
+
+@code {
+    [Parameter]
+    public BaseSocket Socket { get; set; }
+
+    public string SocketStateText => Socket?.State == State.ON ? "AUSSCHALTEN" : "EINSCHALTEN";
+
+    private async Task SetSocketState()
+    {
+        ToggleSocketState();
+        var success = await socketService.ToggleWirelessSocketState(Socket);
+        var toasterText = Socket?.State == State.ON ? "eingeschaltet" : "ausgeschaltet";
+        if (success)
+        {
+            toaster.Add($"{Socket.Name} wurde {toasterText}", MatToastType.Success);
+        }
+        else
+        {
+            ToggleSocketState();
+            toaster.Add($"Fehler bei der Kommunikation", MatToastType.Success);
+        }
+    }
+
+
+    private void ToggleSocketState()
+    {
+        Socket.State = Socket.State == State.ON ? State.OFF : State.ON;
+    }
+
+    private string cssClass => Socket?.State == State.ON ? "background-color: green;" : "background-color: red";
+}

@@ -1,0 +1,28 @@
+﻿@page "/"
+@inject IWirelessSocketService socketService
+
+<div class="container-fluid pt-3">
+    <MatHeadline4>Funksteckdosen</MatHeadline4>
+</div>
+<div class="mat-layout-grid">
+    <div class="mat-layout-grid-inner">
+        @foreach (var socket in WirelessSockets)
+        {<div class="mat-layout-grid-cell" style="min-width: 100px;">
+                <WirelessSocket Socket="socket" />
+            </div>
+        }
+    </div>
+</div>
+
+
+@code {
+    public List<BaseSocket> WirelessSockets { get; set; } = new List<BaseSocket>();
+
+    protected override void OnInitialized()
+    {
+
+        WirelessSockets = socketService.GetWirelessSockets();
+
+        base.OnInitialized();
+    }
+}
